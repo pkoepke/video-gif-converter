@@ -5,7 +5,11 @@ import { fetchFile, toBlobURL } from '@ffmpeg/util';
 ffmpeg = new FFmpeg();
 //ffmpeg.on("log", ({ message }) => { console.log(message); }); // If ffmpeg calls its log method, log that to the console.
 ffmpeg.on("log", getVideoFps); // ffmpeg.wasm doesn't provide a good way to get FPS, so we have to parse its logs for that info.
-ffmpeg.on("progress", ({ progress, time }) => { document.getElementById('progress').textContent = `${(progress * 100).toFixed(2)} %, time: ${(time / 1000000).toFixed(2)}s`; }); // Show progress on the page.
+ffmpeg.on("progress", ({ progress, time }) => {
+  console.log(`progress: ${progress}`);
+  console.log(`time: ${time}`);
+  document.getElementById('progress').textContent = `${(progress * 100).toFixed(2)} %, time: ${(time / 1000000).toFixed(2)}s`;
+}); // Show progress on the page.
 
 import mediaInfoFactory from 'mediainfo.js';
 let mediainfo = '';
