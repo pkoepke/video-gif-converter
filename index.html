@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<!-- build with 
+npx parcel watch index.html --public-url /video-gif-converter/
+to send it to pkoepke.github.io folder with relative paths mostly correct.
+ -->
+
+<head>
+
+  <meta charset="utf-8">
+  <!--<link rel="manifest" href="manifest.json">-->
+  <!--<script>
+    if (typeof navigator.serviceWorker !== 'undefined') {
+      navigator.serviceWorker.register('/sw.js')
+    }
+  </script>-->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#012169">
+  <meta name="author" content="Paul Koepke">
+  <meta name="description" content="Converts videos and GIFs in your browser, no upload needed.">
+  <meta property="og:title" content="Video and GIF converter">
+  <meta property="og:description" content="Converts videos and GIFs in your browser, no upload needed.">
+  <meta property="og:image" content="./favicon.ico">
+  <meta property="og:url" content="/">
+  <script type="module" src="https://unpkg.com/mediainfo.js"></script>
+  <script type="module" src="./script.js"></script>
+  <link rel="icon" type="image/png" href="./favicon.ico">
+  <link rel="shortcut icon" href="./favicon.ico">
+  <title>Video and gif converter</title>
+  <!--<link id="styles" rel="stylesheet" type="text/css" href="/styles_dark.css">-->
+  <!--
+  <style id="styles_dark"> 
+    body {
+      font-family: Roboto, Inter, "Noto Sans", "Open Sans", Helvetica, Aptos, "Liberation Sans", Arial, sans-serif;
+      color: white;
+      margin: 0;
+      background-color: #000000;
+      max-width: 70rem;
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 1.05rem;
+    }
+
+    .roboto {
+      font-family: Roboto, Inter, "Noto Sans", "Open Sans", sans-serif;
+    }
+
+    .inter {
+      font-family: Inter, Roboto, "Noto Sans", "Open Sans", sans-serif;
+    }
+
+    h1,
+    .headerText {
+      font-size: 1.3rem;
+      padding: 0.4rem;
+      margin: 0px;
+      background-color: #012169;
+      color: #ffffff;
+      font-weight: normal;
+      text-align: center;
+    }
+
+    h1>a,
+    .headerText {
+      color: white;
+      text-decoration: none;
+    }
+
+    h1>a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 0.2rem;
+      max-width: 69rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .navigation_menu {
+      background-color: #003fd1;
+      margin: 1rem 0 1rem 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .link_list {
+      display: inline-block;
+      padding: 0.5rem 0.3rem 0.5rem 0.3rem;
+      color: white;
+    }
+
+    a {
+      color: #0085f3;
+    }
+
+    .link_list:hover {
+      background-color: #001a57;
+    }
+
+    .content {
+      clear: both;
+      margin: 0 10px 0 10px;
+    }
+
+    img {
+      height: 0.8em;
+      /*filter: invert(1);*/
+      position: relative;
+      top: 0.1em;
+      left: 0.2em;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: auto;
+      border: 1px solid #696969;
+      background-color: #1d1d1d;
+      color: white;
+      height: 1.2rem;
+    }
+
+    textarea {
+      height: auto;
+    }
+
+    input:focus,
+    select:focus {
+      border: 1px solid lightgray;
+      background-color: #2d2d2d;
+      outline: 0;
+    }
+
+    /* Firefox - prevent number buttons/spinners */
+    input[type="number"] {
+      appearance: textfield;
+    }
+
+    /* Webkit - prevent number buttons/spinners */
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    label {
+      height: 1.4em;
+    }
+  </style>-->
+  <!-- Styles that work combined with styles_dar.css. Commenting out for now to start over. 
+  <style>
+    body {
+      font-size: 1.2rem;
+      max-width: inherit;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      width: 100%
+    }
+
+    main {
+      width: 100%;
+      max-width: 80rem;
+    }
+
+    .flexbox-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      /*gap: 1rem;*/
+    }
+
+    .flexbox-row {
+      display: flex;
+      flex-direction: row;
+      /*align-items: center;*/
+      justify-content: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    #inputs {
+      width: 100%;
+      max-width: 50rem;
+      padding: 1rem;
+      margin: 1rem;
+    }
+
+    button {
+      height: 2rem;
+      font-size: 1.2rem;
+      padding: 0 0.6rem;
+    }
+
+    input,
+    select {
+      height: 2rem;
+      min-width: 3rem;
+      font-size: 1.2rem;
+      padding: 0 0 0 0.2rem;
+    }
+
+    input[type="number"] {
+      width: 2rem;
+      margin: .1rem;
+    }
+
+    .inputImg,
+    .outputImg,
+    .inputVideo,
+    .outputVideo {
+      height: auto;
+      width: auto;
+      max-width: 90%;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .centered {
+      text-align: center;
+      margin: auto auto;
+    }
+
+
+    .row,
+    details {
+      font-size: 1rem;
+      margin: 1rem 0;
+      width: 90%;
+      max-width: 50rem;
+      display: block;
+      width: 100%;
+    }
+
+    .left {
+      text-align: left;
+      margin: 0;
+    }
+
+    .grayBorder {
+      border: 1px solid grey;
+      border-radius: 1rem;
+      padding: 1rem;
+    }
+
+    .grayBox1 {
+      background-color: #161616;
+    }
+
+    .grayBox2 {
+      background-color: #323232;
+    }
+
+    .outputStartEndLabels {
+      width: 9rem;
+      display: inline-block;
+      text-align: left;
+    }
+
+    .progressP {
+      width: 15rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+  </style>
+  -->
+  <!-- Starting styles over -->
+  <style>
+    html {
+      scrollbar-gutter: stable;
+    }
+
+    body {
+      font-family: Roboto, Inter, "Noto Sans", "Open Sans", Helvetica, Aptos, "Liberation Sans", Arial, sans-serif;
+      color: white;
+      background-color: #000000;
+      margin: 0;
+    }
+
+    .roboto {
+      font-family: Roboto, Inter, "Noto Sans", "Open Sans", sans-serif;
+    }
+
+    .inter {
+      font-family: Inter, Roboto, "Noto Sans", "Open Sans", sans-serif;
+    }
+
+    h1 {
+      width: 95vw;
+    }
+
+    h1,
+    .headerText {
+      font-size: 1.3rem;
+      padding: 0.4rem 1rem;
+      margin: 0px auto;
+      background-color: #012169;
+      color: #ffffff;
+      font-weight: normal;
+      text-align: center;
+    }
+
+    h1>a:hover {
+      text-decoration: underline;
+    }
+
+    .headerImg {
+      height: 0.8em;
+      position: relative;
+      top: 0.1em;
+      left: 0.2em;
+    }
+
+    .flexbox-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    #inputs {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    #outputs {
+      max-width: 95%;
+      margin: 0px auto;
+    }
+
+    #inputImg,
+    #outputImg,
+    #inputVideo,
+    #outputVideo {
+      height: auto;
+      width: auto;
+      max-width: 90%;
+    }
+
+    .centered {
+      margin-left: auto;
+      margin-right: auto;
+      align-self: center;
+    }
+
+    .centeredText {
+      text-align: center;
+    }
+
+    /* Firefox - prevent number buttons/spinners */
+    input[type="number"] {
+      appearance: textfield;
+    }
+
+    /* Webkit - prevent number buttons/spinners */
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    .grayBorder {
+      border: 1px solid grey;
+      /*border-radius: 1rem;*/
+      padding: 1rem;
+      width: 90%;
+    }
+
+    .flexbox-row {
+      display: flex;
+      flex-direction: row;
+      /*justify-content: flex-end;*/
+      justify-content: flex-start;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+
+    .inputDetailsSpacing {
+      justify-content: space-evenly;
+    }
+
+    input[type="number"] {
+      width: 1rem;
+      margin: .1rem;
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    .outputStartEndLabels {
+      width: 9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 id="h1">
+    <img src="./animated_images_24dp.png" class="headerImg" alt="animated images icon">
+    <a href="/" class="headerText nowrap">Video and gif converter</a>
+  </h1>
+  <main class="roboto">
+    <div id="inputs" class="flexbox-column grayBox">
+
+      <details class="row grayBox2 ">
+        <summary>Tap for details</summary>
+        <p>This app will convert videos and images to other formats (e.g., video to GIF) on your device. It does not upload your data anywhere. Since it uses your device's processor, it may take a long time for large videos (i.e., long videos or videos in high resolutions) depending on your device's computing power.</p>
+        <p>This app embeds ffmpeg in your browser using <a href="https://github.com/ffmpegwasm/ffmpeg.wasm">ffmpeg.wasm</a>. ffmpeg has too many options to show all of them in a simple UI, so I've tried to select only the most useful options. Feedback on other options to add is welcome, but since I'm a hobbyist doing this for free I can't guarantee I'll get around to every request. ffmpeg.wasm also has issues with some output types like webm, avif, and jxl, so until those issues are fixed we are limited to just a few output types.</p>
+      </details>
+
+      <div class="row grayBox2 ">
+        <input type="file" id="fileInput">
+        <button id="chooseFile">Choose a file to convert</button>
+      </div>
+      <div class="row grayBox2 "><label for="outputType">Choose an output type:</label>
+        <select id="outputType">
+          <option value="gif" selected="selected">gif</option>
+          <option value="mp4">mp4</option>
+        </select>
+      </div>
+      <details class="row grayBox2 grayBorder">
+        <summary class="centeredText">Advanced options</summary>
+        <div class="flexbox-row inputDetailsSpacing">
+          <label for="inputLength">Input length: <span id="inputLength"></span></label>
+          <label for="inputResolution">Input resolution: <span id="inputResolution"></span></label>
+          <label for="inputFps">Input FPS: <span id="inputFps"></span></label>
+        </div>
+        <div class="flexbox-row">
+          <span class="outputStartEndLabels">Output start time:</span>
+          <span class="nowrap"><label for="outputStartTimeH"> h: </label><input id="outputStartTimeH" type="number" min="0" inputmode="decimal" step="0.01" pattern="[0-9]*.?[0-9]*"></span>
+          <span class="nowrap"><label for="outputStartTimeM"> m: </label><input id="outputStartTimeM" type="number" min="0" inputmode="decimal" step="0.01" pattern="[0-9]*.?[0-9]*"></span>
+          <span class="nowrap"><label for="outputStartTimeS"> s: </label><input id="outputStartTimeS" type="number" min="0" inputmode="decimal" step="0.01" pattern="[0-9]*.?[0-9]*"></span>
+
+        </div>
+        <div class="flexbox-row">
+          <span class="outputStartEndLabels">Output end time:</span>
+          <span class="nowrap"><label for="outputEndTimeH"> h: </label><input id="outputEndTimeH" type="number" min="0" inputmode="decimal" step="0.01" pattern="[0-9]*.?[0-9]*"></span>
+          <span class="nowrap"><label for="outputEndTimeM"> m: </label><input id="outputEndTimeM" type="number" min="0" inputmode="decimal" step="0.01" pattern="[0-9]*.?[0-9]*"></span>
+          <span class="nowrap"><label for="outputEndTimeS"> s: </label><input id="outputEndTimeS" type="number" min="0" inputmode="decimal" step="0.01" pattern="[0-9]*.?[0-9]*"></span>
+
+        </div>
+        <div class="flexbox-row">
+          <span class="outputStartEndLabels">Output resolution:</span>
+          <span><label for="outputVResolution">W: </label><input id="outputVResolution" type="number" min="0" inputmode="decimal" step="0.01" pattern="[0-9]*.?[0-9]*"></span>
+          x<span><label for="outputHResolution">H: </label><input id="outputHResolution" type="number" min="0" inputmode="decimal" step="0.01" pattern="[0-9]*.?[0-9]*"></span>
+        </div>
+        <div class="flexbox-row">
+          <label for="outputFps">Output FPS: </label><input id="outputFps" type="number" min="0" inputmode="decimal" step="0.01" pattern="[0-9]*.?[0-9]*">
+        </div>
+      </details>
+
+      <div class="row grayBox2 "><button id="startTranscode">Begin conversion</button></div>
+      <div class="row grayBox2  progressP">Progress: <span id="progress"></span></div>
+    </div>
+    <div id="outputs" class="centered">
+      <div class="row grayBox2 centeredText">Original:</div>
+      <div id="originalFile" class="row centered centeredText"><span></span></div>
+      <div class="row grayBox2 centeredText">Converted:</div>
+      <div id="output" class="row centered centeredText"><span></span></div>
+    </div>
+  </main>
+</body>
+
+</html>
