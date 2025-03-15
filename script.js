@@ -6,8 +6,7 @@ ffmpeg = new FFmpeg();
 //ffmpeg.on("log", ({ message }) => { console.log(message); }); // If ffmpeg calls its log method, log that to the console.
 ffmpeg.on("log", getVideoFps); // ffmpeg.wasm doesn't provide a good way to get FPS, so we have to parse its logs for that info.
 ffmpeg.on("progress", ({ progress, time }) => {
-  console.log(`progress: ${progress}`);
-  console.log(`time: ${time}`);
+  if (progress > 1) { return } // Prevent strange flash of several million percent progress. Progress can't be more than 100% anyway.
   document.getElementById('progress').textContent = `${(progress * 100).toFixed(2)} %, time: ${(time / 1000000).toFixed(2)}s`;
 }); // Show progress on the page.
 
