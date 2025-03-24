@@ -14,7 +14,7 @@ import mediaInfoFactory from 'mediainfo.js';
 let mediainfo = '';
 
 (async () => {
-  try { // Try to use self-hosted files, but if that doesn't work fall back to the unpkg CDN.
+  try {
     const baseURL = './umd/';
     await ffmpeg.load({
       coreURL: await toBlobURL(`${baseURL}ffmpeg-core.js`, 'text/javascript'),
@@ -34,7 +34,7 @@ let mediainfo = '';
   } catch (e) {
     console.log(`Error loading ffmpeg: ${e}`);
 
-    const baseURL = 'https://unpkg.com/@ffmpeg/core/dist/umd'
+    /*const baseURL = 'https://unpkg.com/@ffmpeg/core/dist/umd'
     await ffmpeg.load({
       coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
       wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
@@ -45,7 +45,7 @@ let mediainfo = '';
         // Customize the path here.
         return "./MediaInfoModule.wasm"; // Replace with your actual path.
       }
-    }));
+    }));*/
   }
 })()
 
