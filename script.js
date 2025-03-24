@@ -14,29 +14,37 @@ import mediaInfoFactory from 'mediainfo.js';
 let mediainfo = '';
 
 (async () => {
-  const baseURL = 'https://unpkg.com/@ffmpeg/core/dist/umd'
+  try { // Try to use self-hosted files, but if that doesn't work fall back to the unpkg CDN.
+    const baseURL = './umd/';
+    await ffmpeg.load({
+      coreURL: await toBlobURL(`${baseURL}ffmpeg-core.js`, 'text/javascript'),
+      wasmURL: await toBlobURL(`${baseURL}ffmpeg-core.wasm`, 'application/wasm')
+    });
 
-  /*  const baseURL = './';
-  await ffmpeg.load({
-    coreURL: await toBlobURL(`${baseURL}ffmpeg-core.js`, 'text/javascript'),
-    wasmURL: await toBlobURL(`${baseURL}ffmpeg-core.wasm`, 'application/wasm')
-  });*/
 
-  //const baseURL = "."
+    //const mediainfo = await mediaInfoFactory();
+    mediainfo = await mediaInfoFactory(({
+      locateFile: function (path, scriptDirectory) {
+        // Customize the path here.
+        return "./MediaInfoModule.wasm"; // Replace with your actual path.
+      }
+    }));
+  } catch (e) {
+    console.log(`Error loading ffmpeg: ${e}`);
 
-  await ffmpeg.load({
-    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-  });
+    const baseURL = 'https://unpkg.com/@ffmpeg/core/dist/umd'
+    await ffmpeg.load({
+      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+    });
 
-  //const mediainfo = await mediaInfoFactory();
-  mediainfo = await mediaInfoFactory(({
-    locateFile: function (path, scriptDirectory) {
-      // Customize the path here.
-      return "./MediaInfoModule.wasm"; // Replace with your actual path.
-    }
-  }));
-
+    mediainfo = await mediaInfoFactory(({
+      locateFile: function (path, scriptDirectory) {
+        // Customize the path here.
+        return "./MediaInfoModule.wasm"; // Replace with your actual path.
+      }
+    }));
+  }
 })()
 
 
@@ -96,7 +104,8 @@ async function processFetchedFile() {
 const handleInput = (event, file) => { // This can be called either by choosing a file, or by clicking Begin conversion. In the latter case the File parameter will be empty so we'll get the file from the file picker.
   if (!file) { file = document.getElementById('fileInput').files[0]; }
   document.getElementById('output').firstChild.replaceWith(document.createElement('span'));
-  if (file.type == 'image/gif') {
+  //if (file.type == 'image/gif') {
+  if (getFileType(file) == 'image') {
     const imgTag = document.createElement('img');
     imgTag.src = URL.createObjectURL(file);
     imgTag.id = 'inputImg';
@@ -130,6 +139,45 @@ async function getVideoFps(message) {
     fps = fps.filter((str) => { return str.includes('fps') });
     console.log(fps);
     document.getElementById('inputFps').textContent = `${fps}`;
+  }
+}
+
+function getFileType(file) {
+  if (!file) {
+    return null; // Or throw an error, depending on your needs
+  }
+
+  const type = file.type;
+
+  if (!type) {
+    // If MIME type is unavailable, try to infer from the file extension.
+    const fileName = file.name;
+    if (!fileName) {
+      return null;
+    }
+    const extension = fileName.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2); // Get the extension
+    if (!extension) {
+      return null;
+    }
+
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'tiff', 'tif'];
+    const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'mkv'];
+
+    if (imageExtensions.includes(extension.toLowerCase())) {
+      return 'image';
+    } else if (videoExtensions.includes(extension.toLowerCase())) {
+      return 'video';
+    } else {
+      return 'unknown';
+    }
+  }
+
+  if (type.startsWith('image/')) {
+    return 'image';
+  } else if (type.startsWith('video/')) {
+    return 'video';
+  } else {
+    return 'unknown';
   }
 }
 
