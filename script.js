@@ -21,6 +21,8 @@ let mediainfo = '';
       wasmURL: await toBlobURL(`${baseURL}ffmpeg-core.wasm`, 'application/wasm')
     });
 
+    console.log(`ffmpeg: ${ffmpeg}`)
+
 
     //const mediainfo = await mediaInfoFactory();
     mediainfo = await mediaInfoFactory(({
